@@ -98,9 +98,9 @@ class ofxOculusRift
 	bool bUseBackground;
 	bool bUseOverlay;
 	float overlayZDistance;
-	Ptr<DeviceManager>	pManager;
-	Ptr<HMDDevice>		pHMD;
-	Ptr<SensorDevice>	pSensor;
+	OVR::Ptr<DeviceManager>	pManager;
+	OVR::Ptr<HMDDevice>		pHMD;
+	OVR::Ptr<SensorDevice>	pSensor;
 	SensorFusion*       pFusionResult;
 	HMDInfo				hmdInfo;
 

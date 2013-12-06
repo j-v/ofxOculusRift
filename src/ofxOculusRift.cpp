@@ -22,6 +22,9 @@ void main()
 });
 
 static const char* OculusWarpFrag = GLSL(120,
+
+\#extension GL_ARB_texture_rectangle : enable
+
 uniform vec2 LensCenter;
 uniform vec2 ScreenCenter;
 uniform vec2 Scale;
@@ -274,8 +277,8 @@ void ofxOculusRift::reloadShader(){
 	if(ofFile("Shaders/HmdWarp.vert").exists() && ofFile("Shaders/HmdWarp.frag").exists()){
 		distortionShader.load("Shaders/HmdWarp");
 	}
-	//otherwise we load the hardcoded one
-	else{
+	else
+	{
 		distortionShader.setupShaderFromSource(GL_VERTEX_SHADER, OculusWarpVert);
 		distortionShader.setupShaderFromSource(GL_FRAGMENT_SHADER, OculusWarpFrag);
 		distortionShader.linkProgram();
