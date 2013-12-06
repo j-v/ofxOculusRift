@@ -22,9 +22,6 @@ void main()
 });
 
 static const char* OculusWarpFrag = GLSL(120,
-
-\#extension GL_ARB_texture_rectangle : enable
-
 uniform vec2 LensCenter;
 uniform vec2 ScreenCenter;
 uniform vec2 Scale;
@@ -37,8 +34,8 @@ varying vec2 oTexCoord;
 
 void main()
 {
-	vec2  theta = (oTexCoord - LensCenter) * ScaleIn; // Scales to [-1, 1]
-	float rSq = theta.x * theta.x + theta.y * theta.y;
+    vec2  theta = (oTexCoord - LensCenter) * ScaleIn; // Scales to [-1, 1]
+    float rSq = theta.x * theta.x + theta.y * theta.y;
     vec2  theta1 = theta * (HmdWarpParam.x +
                             HmdWarpParam.y * rSq +
 							HmdWarpParam.z * rSq * rSq +
@@ -114,41 +111,41 @@ ofxOculusRift::~ofxOculusRift(){
 
 bool ofxOculusRift::setup(){
 	
-	if(bSetup){
-		ofLogError("ofxOculusRift::setup") << "Already set up";
-		return false;
-	}
+    if(bSetup){
+	    ofLogError("ofxOculusRift::setup") << "Already set up";
+	    return false;
+    }
 	
-	System::Init();
+    System::Init();
     
     pFusionResult = new SensorFusion();
-	pManager = *DeviceManager::Create();
-	pHMD = *pManager->EnumerateDevices<HMDDevice>().CreateDevice();
+    pManager = *DeviceManager::Create();
+    pHMD = *pManager->EnumerateDevices<HMDDevice>().CreateDevice();
     
-	if (pHMD == NULL){
-		ofLogError("ofxOculusRift::setup") << "HMD not found";
-		return false;
-	}
+    if (pHMD == NULL){
+	    ofLogError("ofxOculusRift::setup") << "HMD not found";
+	    return false;
+    }
 	
-	if(!pHMD->GetDeviceInfo(&hmdInfo)){
-		ofLogError("ofxOculusRift::setup") << "HMD Info not loaded";
-		return false;
-	}
+    if(!pHMD->GetDeviceInfo(&hmdInfo)){
+	    ofLogError("ofxOculusRift::setup") << "HMD Info not loaded";
+	    return false;
+    }
 	
-	pSensor = *pHMD->GetSensor();
-	if (pSensor == NULL){
-		ofLogError("ofxOculusRift::setup") << "No sensor returned";
-		return false;
-	}
+    pSensor = *pHMD->GetSensor();
+    if (pSensor == NULL){
+	    ofLogError("ofxOculusRift::setup") << "No sensor returned";
+	    return false;
+    }
 	
-	if(!pFusionResult->AttachToSensor(pSensor)){
-		ofLogError("ofxOculusRift::setup") << "Sensor Fusion failed";
-		return false;
-	}
+    if(!pFusionResult->AttachToSensor(pSensor)){
+	    ofLogError("ofxOculusRift::setup") << "Sensor Fusion failed";
+	    return false;
+    }
 	
-	stereo.SetFullViewport(OVR::Util::Render::Viewport(0,0, hmdInfo.HResolution, hmdInfo.VResolution));
-	stereo.SetStereoMode(OVR::Util::Render::Stereo_LeftRight_Multipass);
-	stereo.SetHMDInfo(hmdInfo);
+    stereo.SetFullViewport(OVR::Util::Render::Viewport(0,0, hmdInfo.HResolution, hmdInfo.VResolution));
+    stereo.SetStereoMode(OVR::Util::Render::Stereo_LeftRight_Multipass);
+    stereo.SetHMDInfo(hmdInfo);
     if (hmdInfo.HScreenSize > 0.0f)
     {
         if (hmdInfo.HScreenSize > 0.140f) // 7"
@@ -157,58 +154,58 @@ bool ofxOculusRift::setup(){
             stereo.SetDistortionFitPointVP(0.0f, 1.0f);
     }
 
-	renderScale = stereo.GetDistortionScale();
+    renderScale = stereo.GetDistortionScale();
 	
-	//account for render scale?
-	float w = hmdInfo.HResolution;
-	float h = hmdInfo.VResolution;
+    //account for render scale?
+    float w = hmdInfo.HResolution;
+    float h = hmdInfo.VResolution;
 	
-	renderTarget.allocate(w, h, GL_RGB, 4);
+    renderTarget.allocate(w, h, GL_RGB, 4);
     backgroundTarget.allocate(w/2, h);
     overlayTarget.allocate(256, 256, GL_RGBA);
 	
-	backgroundTarget.begin();
+    backgroundTarget.begin();
     ofClear(0.0, 0.0, 0.0);
-	backgroundTarget.end();
+    backgroundTarget.end();
 	
-	overlayTarget.begin();
-	ofClear(0.0, 0.0, 0.0);
-	overlayTarget.end();
+    overlayTarget.begin();
+    ofClear(0.0, 0.0, 0.0);
+    overlayTarget.end();
 	
-	//left eye
-	leftEyeMesh.addVertex(ofVec3f(0,0,0));
-	leftEyeMesh.addTexCoord(ofVec2f(0,h));
+    //left eye
+    leftEyeMesh.addVertex(ofVec3f(0,0,0));
+    leftEyeMesh.addTexCoord(ofVec2f(0,h));
 	
-	leftEyeMesh.addVertex(ofVec3f(0,h,0));
-	leftEyeMesh.addTexCoord(ofVec2f(0,0));
+    leftEyeMesh.addVertex(ofVec3f(0,h,0));
+    leftEyeMesh.addTexCoord(ofVec2f(0,0));
 	
-	leftEyeMesh.addVertex(ofVec3f(w/2,0,0));
-	leftEyeMesh.addTexCoord(ofVec2f(w/2,h));
+    leftEyeMesh.addVertex(ofVec3f(w/2,0,0));
+    leftEyeMesh.addTexCoord(ofVec2f(w/2,h));
 
-	leftEyeMesh.addVertex(ofVec3f(w/2,h,0));
-	leftEyeMesh.addTexCoord(ofVec2f(w/2,0));
+    leftEyeMesh.addVertex(ofVec3f(w/2,h,0));
+    leftEyeMesh.addTexCoord(ofVec2f(w/2,0));
 	
-	leftEyeMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+    leftEyeMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
 	
-	//Right eye
-	rightEyeMesh.addVertex(ofVec3f(w/2,0,0));
-	rightEyeMesh.addTexCoord(ofVec2f(w/2,h));
+    //Right eye
+    rightEyeMesh.addVertex(ofVec3f(w/2,0,0));
+    rightEyeMesh.addTexCoord(ofVec2f(w/2,h));
 
-	rightEyeMesh.addVertex(ofVec3f(w/2,h,0));
-	rightEyeMesh.addTexCoord(ofVec2f(w/2,0));
+    rightEyeMesh.addVertex(ofVec3f(w/2,h,0));
+    rightEyeMesh.addTexCoord(ofVec2f(w/2,0));
 
-	rightEyeMesh.addVertex(ofVec3f(w,0,0));
-	rightEyeMesh.addTexCoord(ofVec2f(w,h));
+    rightEyeMesh.addVertex(ofVec3f(w,0,0));
+    rightEyeMesh.addTexCoord(ofVec2f(w,h));
 	
-	rightEyeMesh.addVertex(ofVec3f(w,h,0));
-	rightEyeMesh.addTexCoord(ofVec2f(w,0));
+    rightEyeMesh.addVertex(ofVec3f(w,h,0));
+    rightEyeMesh.addTexCoord(ofVec2f(w,0));
 	
-	rightEyeMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+    rightEyeMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
 	
-	reloadShader();
+    reloadShader();
 	
-	bSetup = true;
-	return true;
+    bSetup = true;
+    return true;
 }
 
 bool ofxOculusRift::isSetup(){
@@ -287,7 +284,7 @@ void ofxOculusRift::reloadShader(){
 
 
 void ofxOculusRift::beginBackground(){
-	bUseBackground = true;
+    bUseBackground = true;
     backgroundTarget.begin();
     ofClear(0.0, 0.0, 0.0);
     ofPushView();
